@@ -1,0 +1,283 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IMAGE TO TEXT | HACKATHON</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Include Font Awesome CSS -->
+    <style>
+        body {
+           background-image: url("/static/images/imageConventorImg.jpg");
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+         .container {
+            text-align: center;            
+            max-width: 600px;
+             margin:15rem 0 0 6rem;
+            padding: 20px;
+            border: 2px solid #fff;
+            background-color: transparent;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .pdf-icon {
+            display: inline-block;
+        }
+        .btn {
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #2ecc40;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #27ae60;
+        }
+        #resultContainer {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .conversion-text {
+            font-size: 16px;
+            color: #333;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .file-input-label {
+            background-color: #0074d9;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .file-input-label:hover {
+            background-color: #0056b3;
+        }
+        .icon {
+            top: 50%;
+            right: 10px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            padding: 8px;
+            position: relative;
+        }
+
+        .icon:hover {
+            background-color:#dfcdcd;
+        }
+
+        .conversion-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 60px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 36px;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+.button.primary:hover {
+    background-color: #ffffff;
+    color: #833CFF;
+    border: 1px solid #833CFF;
+    text-decoration: none;
+    transition: all ease-in 0.3s;
+}
+.button.primary {
+    background: #823cff;
+    color: #fff;
+    border: 1px solid #823cff;
+}
+
+
+.button {
+    cursor: pointer;
+    border-radius: 30px;
+    padding: 0px 20px;
+  height: 45px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="title">
+        Turn your Image into text
+    </div><br/>
+    <div class="subtitle">
+         <p>Convert your images to text effortlessly with a single click.</p>
+    </div>
+     <div class="content">
+        <label for="imageInput" class="file-input-label button primary">
+            <i class="far fa-file-alt pdf-icon"></i> <span>Upload</span>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </label>
+      
+
+  <button class="btn button primary" onclick="convertImageToText()">
+<i class="fas fa-sync-alt"></i>Convert</button>
+    </div>
+</div>
+
+<div class="container" id="conversionCard" style="display: none;">
+    <div class="conversion-title">
+        <div class="title">
+            Conversion Result :
+        </div>
+        <div>
+            <span class="tooltip">
+              <i class="far fa-copy icon" onclick="copyConversionData()" title="Copy"></i>
+              <span class="tooltiptext">Copy</span>
+            </span>
+            <span class="tooltip">
+              <i class="far fa-trash-alt icon" onclick="clearConversionData()" title="Clear"></i>
+                <span class="tooltiptext">Clear</span>
+            </span>
+        </div>
+    </div>
+    <div id="resultContainer">
+        <div class="conversion-text">
+        </div>
+    </div>
+</div>
+
+<script>
+    async function convertImageToText() {
+        const fileInput = document.getElementById('imageInput');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('image_data', file);
+
+        try {
+            const csrftoken = getCookie('csrftoken');
+            const response = await fetch('/nexarc/imageToText/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new Error('Failed to convert Image to text');
+            }
+            const data = await response.json();
+            if (data.text) {
+                showResult(data.text);
+                document.getElementById('conversionCard').style.display = 'block';
+            } else {
+                console.error('Error converting Image to text:', data.error);
+            }
+        } catch (error) {
+            console.error('Error converting Image to text:', error);
+            alert('Error converting Image to text. Please try again later.');
+        }
+    }
+
+    function showResult(result) {
+        const resultContainer = document.getElementById('resultContainer');
+                    const cardContainers = document.getElementsByClassName('container');
+for (let i = 0; i < cardContainers.length; i++) {
+    cardContainers[i].style.margin = '6rem 0 0 6rem';
+}
+        resultContainer.innerHTML = '<div class="conversion-text">' + result + '</div>';
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function clearConversionData() {
+        const resultContainer = document.getElementById('resultContainer');
+        const cardContainers = document.getElementsByClassName('container');
+for (let i = 0; i < cardContainers.length; i++) {
+    cardContainers[i].style.margin = '15rem 0 0 6rem';
+}
+        resultContainer.innerHTML = '';
+        document.getElementById('conversionCard').style.display = 'none';
+    }
+
+    function copyConversionData() {
+        const conversionText = document.querySelector('.conversion-text');
+        const textToCopy = conversionText.innerText;
+
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            console.log('Conversion data copied to clipboard');
+        }, function(err) {
+            console.error('Failed to copy conversion data: ', err);
+        });
+    }
+</script>
+
+</body>
+</html>

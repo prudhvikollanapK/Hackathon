@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VOICE TO TEXT | HACKATHON</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url("");
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #fff;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .card {
+            text-align: center;
+            max-width: 600px;
+            margin:15rem 0 0 6rem;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .language-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            border: 1px solid #833CFF;
+            border-radius: 30px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        .language-selection select {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fff;
+            color: #333;
+            padding: 8px 8px;
+        }
+
+        .language-selection select:focus {
+            outline: none;
+        }
+
+        .start-btn {
+            height: 50px;
+            font-size: 18px;
+            width: 180px;
+            margin-bottom: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: #00365e;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .logs-container {
+            margin-top: -7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logs-container div {
+            margin-right: 20px;
+        }
+
+        .icon {
+            font-size: 24px;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        .btns {
+            gap: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .result-card {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 2rem 0 0 6rem;
+        }
+
+        .result-card p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .result-card ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .result-card ul li {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .clear-icon, .logs-icon {
+            cursor: pointer;
+        }
+
+          .l-icon, .c-icon {
+              font-size: xx-large;
+            top: 50%;
+            right: 10px;
+            color: #eaecd7;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            padding: 15px;
+            position: relative;
+        }
+
+        .l-icon:hover, .c-icon:hover{
+             background-color:#000;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 60px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            top: 100%; 
+            left: 49px;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .langtext{
+            width: 140px !important;
+            left: 66px !important;
+        }
+
+       .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+.button.primary:hover {
+    background-color: #ffffff;
+    color: #833CFF;
+    border: 1px solid #833CFF;
+    text-decoration: none;
+    transition: all ease-in 0.3s;
+}
+.button.primary {
+    background: #823cff;
+    color: #fff;
+    border: 1px solid #823cff;
+}
+
+
+.button {
+    cursor: pointer;
+    border-radius: 30px;
+    padding: 0px 20px;
+    line-height: 16px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+  .header-lang-icon {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    background-image: url(
+    data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNi4yMjciIGhlaWdodD0iMTcuOSIgdmlld0JveD0iMCAwIDE2LjIyNyAxNy45Ij4KICA8cGF0aCBpZD0ibGFuZ3VhZ2UiIGQ9Ik0xMjguNTM0LDI2LjI0NmE3LjYzMiw3LjYzMiwwLDAsMC03LjQsOS41NjFoLS4wMjlhMS4xNTQsMS4xNTQsMCwwLDAtMS4xNTEsMS4xNDl2NC4xMThhMS4xNTQsMS4xNTQsMCwwLDAsMS4xNTEsMS4xNDloLjA0NXYxLjYxNWgwYS4zMDkuMzA5LDAsMCwwLC41MjcuMjE4bDEuODI2LTEuODMyaDQuMTFhMS4xNTcsMS4xNTcsMCwwLDAsMS4wNjQtLjcxMSw3LjYzLDcuNjMsMCwwLDAsNS40MzEtMTIuODU4aDBhLjI4NC4yODQsMCwwLDAtLjAyNS0uMDI3aDBjLS4wNDctLjA0OS0uMDk1LS4xLS4xNDItLjE0NWE3LjY1NCw3LjY1NCwwLDAsMC01LjQwNy0yLjIzNlptMCwuNjE3YTEuMDE4LDEuMDE4LDAsMCwxLC43NDIuNDQ4LDQuODQzLDQuODQzLDAsMCwxLC43NzQsMS40OTEsMTEuNzU2LDExLjc1NiwwLDAsMSwuNDQ4LDEuNzU5LDcuMDQxLDcuMDQxLDAsMCwxLTMuOTI4LDAsMTEuNzMzLDExLjczMywwLDAsMSwuNDQ4LTEuNzU5LDQuODQ4LDQuODQ4LDAsMCwxLC43NzQtMS40OTEsMS4wMTgsMS4wMTgsMCwwLDEsLjc0Mi0uNDQ4Wm0xLjI2Ny4xMTVhNy4wMzMsNy4wMzMsMCwwLDEsMy42MzUsMS44NzMsNy4wMjcsNy4wMjcsMCwwLDEtMi4zNDcsMS41MDgsMTIuMiwxMi4yLDAsMCwwLS40NTctMS43NjEsNS41MTgsNS41MTgsMCwwLDAtLjgzMi0xLjYyWm0tMi41MzUsMGE1LjUyMiw1LjUyMiwwLDAsMC0uODMxLDEuNjIsMTIuMjIzLDEyLjIyMywwLDAsMC0uNDU3LDEuNzYxLDcuMDMsNy4wMywwLDAsMS0yLjM0Ni0xLjUwOCw3LjAzMyw3LjAzMywwLDAsMSwzLjYzNS0xLjg3M1pNMTIzLjIwOCwyOS4zYTcuNjQ1LDcuNjQ1LDAsMCwwLDIuNjY3LDEuNjgsMTkuNzY2LDE5Ljc2NiwwLDAsMC0uMiwyLjU5aC00LjE2MWE3LjAxMyw3LjAxMywwLDAsMSwxLjctNC4yNzFabTEwLjY1MywwYTcuMDA4LDcuMDA4LDAsMCwxLDEuNyw0LjI3MUgxMzEuNGExOS43OSwxOS43OSwwLDAsMC0uMi0yLjU5LDcuNjQ4LDcuNjQ4LDAsMCwwLDIuNjY3LTEuNjhaTTEzMC42LDMxLjE3NGExOS4yMjUsMTkuMjI1LDAsMCwxLC4xODIsMi40aC00LjQ4OWExOS4yNzYsMTkuMjc2LDAsMCwxLC4xODItMi40LDcuNjQ3LDcuNjQ3LDAsMCwwLDQuMTI1LDBabS05LjA4NSwzLjAxNGg0LjE2Yy4wMTIuNTQ3LjAzNywxLjA5LjA4NiwxLjYxOWgtMy45ODNhNyw3LDAsMCwxLS4yNjQtMS42MTlabTQuNzc4LDBoNC40OWExOS4yNywxOS4yNywwLDAsMS0uMTgyLDIuNCw3LjY1Niw3LjY1NiwwLDAsMC0yLjAyNS0uMjgzaC0uMDEzYTEuMTU0LDEuMTU0LDAsMCwwLS45NDUtLjVoLTEuMjM1Yy0uMDUxLS41MjgtLjA4Mi0xLjA3MS0uMDg5LTEuNjE5Wm01LjEwNywwaDQuMTYxYTcuMDEzLDcuMDEzLDAsMCwxLTEuNyw0LjI3LDcuNjUxLDcuNjUxLDAsMCwwLTIuNjY3LTEuNjgsMTkuODM3LDE5LjgzNywwLDAsMCwuMi0yLjU5Wk0xMjEuMSwzNi40MjVoNi41MDhhLjUyNS41MjUsMCwwLDEsLjUzNC41MzJ2NC4xMThhLjMuMywwLDAsMCwwLC4wMzJoMGEuMzA5LjMwOSwwLDAsMC0uMDEyLjA1N3YuMDEyaDBxMCwuMDE0LDAsLjAyOHYuMDEyYS41MjMuNTIzLDAsMCwxLS41MTcuNEgxMjMuMzhhLjMwOC4zMDgsMCwwLDAtLjIxOS4wOTFMMTIxLjc3Myw0My4xVjQxLjkyMWEuMzA5LjMwOSwwLDAsMC0uMzA5LS4zMDloLS4zNTRhLjUyNS41MjUsMCwwLDEtLjUzNC0uNTMxVjM2Ljk2M2EuNTI1LjUyNSwwLDAsMSwuNTM0LS41MzFabTcuNjU5LjVhNy4wMTEsNy4wMTEsMCwwLDEsMS43MzQuMjc2LDExLjc2NiwxMS43NjYsMCwwLDEtLjQ0OCwxLjc1OSw0Ljg0Nyw0Ljg0NywwLDAsMS0uNzc0LDEuNDkxLDEuMzEyLDEuMzEyLDAsMCwxLS41MTEuNHYtMy45YzAtLjAxMiwwLS4wMjIsMC0uMDMzWm0yLjMyNi40NzZhNy4wMjgsNy4wMjgsMCwwLDEsMi4zNDcsMS41MDgsNy4wMzIsNy4wMzIsMCwwLDEtMy42MzUsMS44NzMsNS41MjQsNS41MjQsMCwwLDAsLjgzMS0xLjYyLDEyLjI1LDEyLjI1LDAsMCwwLC40NTctMS43NjJabS05LjA3Ni4wNDhoMGEuMzA5LjMwOSwwLDEsMCwwLC42MTdoNC40YS4zMDkuMzA5LDAsMSwwLDAtLjYxN1ptMCwxLjkyMmgwYS4zMDkuMzA5LDAsMSwwLDAsLjYxN2g0LjRhLjMwOS4zMDksMCwxLDAsMC0uNjE3WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTExOS45NTQgLTI2LjI0NikiIGZpbGw9IiMxMDEwMTAiLz4KPC9zdmc+Cg==
+    );
+    margin: -8px 0px -8px 4px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: left 2px;
+    background-size: 28px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Turn your Voice into text</h2>
+        <p>Convert your voice to text effortlessly with a single click.</p><br/>
+        <div class="btns">
+            <div class="language-selection ">
+
+                 <span class="tooltip">
+
+                <span class="header-lang-icon"></span>
+                <select id="languageSelect" onchange="changeLanguage(this.value)" title="Select Language"> <option value="en-US">English</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="bn-IN">Bengali</option>
+                    <option value="te-IN">Telugu</option>
+                    <option value="ta-IN">Tamil</option>
+                    <option value="gu-IN">Gujarati</option>
+                    <option value="ka-IN">Kannada</option>
+                    <option value="ml-IN">Malayalam</option>
+                    <option value="pa-IN">Punjabi</option>
+                    <option value="mr-IN">Marathi</option>
+                    <option value="ur-IN">Urdu</option>
+                    <option value="ja-JP">Japanese</option>
+                    <option value="zh-HK">Chinese</option>
+                    <option value="es-ES">Spanish</option>
+                    <option value="fr-FR">French</option>
+                    <option value="de-DE">German</option>
+                </select>
+              <span class="tooltiptext langtext">Select Language</span>
+                       </span>
+
+            </div>
+            <button class="start-btn button primary" onclick="startVoiceRecognition()">
+                <i class="icon fas fa-microphone"></i> Click to Start
+            </button>
+            <div class="logs-container">
+
+                 <span class="tooltip">
+              <i class="icon fas fa-clipboard-list l-icon logs-icon" onclick="showLogs()" title="All Logs"></i>
+              <span class="tooltiptext">All Logs</span>
+            </span>
+
+                 <span class="tooltip">
+              <i class="icon fas fa-trash c-icon clear-icon" onclick="clearConversionData()" title="Clear"></i>
+              <span class="tooltiptext">Clear</span>
+            </span>
+
+            </div>
+            <div class="overlay" id="overlay"></div>
+        </div>
+    </div>
+
+    <div class="result-card" id="resultCard"></div>
+
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
+    <script>
+           let recognition;
+
+        const csrfToken = '{{ csrf_token }}';
+        let selectedLanguage = 'en-US';
+        let popup;
+
+        function showPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            popup = document.createElement('div');
+            popup.classList.add('popup');
+            popup.innerHTML = `
+                <lord-icon
+                    src="https://cdn.lordicon.com/bpmdxzpd.json"
+                    trigger="loop"
+                    state="loop-recording"
+                    colors="primary:#121331,secondary:#c69cf4,tertiary:#faf9d1,quaternary:#ebe6ef,quinary:#f24c00"
+                    style="width:250px;height:250px">
+                </lord-icon>`;
+            document.body.appendChild(popup);
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+
+            if (popup) {
+                popup.remove();
+            }
+        }
+
+        function startVoiceRecognition() {
+            showPopup();
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = selectedLanguage;
+            recognition.onresult = (event) => {
+                const audio_data = event.results[0][0].transcript;
+
+                fetch('/nexarc/voiceToText/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ audio_data, selectedLanguage }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        closePopup();
+                        showConversionResult(data.data);
+                    })
+                    .catch(error => console.error('Fetch error:', error));
+            };
+
+            recognition.onerror = (event) => {
+                alert('Speech recognition error:', event.error);
+                closePopup();
+            };
+
+            recognition.start();
+        }
+
+        function changeLanguage(language) {
+            selectedLanguage = language;
+        }
+
+        function showConversionResult(data) {
+            const resultCard = document.getElementById('resultCard');
+            const cardContainers = document.getElementsByClassName('card');
+for (let i = 0; i < cardContainers.length; i++) {
+    cardContainers[i].style.margin = '6rem 0 0 6rem';
+}
+
+            resultCard.style.display = 'block';
+            resultCard.innerHTML = `
+                <p>Conversion Result:</p>
+                <ul>
+                    ${data.split('\n').map(line => `<li>${line}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+         async function showLogs() {
+            const response = await fetch("/nexarc/fetchText/");
+            const data = await response.json();
+
+            const logsContainer = document.getElementById('resultCard');
+            const cardContainers = document.getElementsByClassName('card');
+for (let i = 0; i < cardContainers.length; i++) {
+    cardContainers[i].style.margin = '6rem 0 0 6rem';
+}
+
+            logsContainer.style.display = 'block';
+            logsContainer.innerHTML = '<p>All Logs:</p>';
+
+            data.data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item.audio_data;
+                logsContainer.appendChild(listItem);
+            });
+        }
+
+        function clearConversionData() {
+            const resultCard = document.getElementById('resultCard');
+            const cardContainers = document.getElementsByClassName('card');
+for (let i = 0; i < cardContainers.length; i++) {
+    cardContainers[i].style.margin = '15rem 0 0 6rem';
+}
+
+            resultCard.style.display = 'none';
+            resultCard.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

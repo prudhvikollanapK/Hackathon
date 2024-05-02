@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hackathon | Nexarc</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://miro.medium.com/v2/resize:fit:1400/1*v1E2iXPpyD0YPZ-8eeVj9Q.jpeg');
+        }
+
+        #mainContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #fff;
+            {#background-color: #ffffff;#}
+            background-color: transparent;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin: 0 10px;
+            width: 500px;
+        }
+
+        .start-btn {
+            margin: 10px;
+            height: 45px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #000;
+            background-color: #fff200;
+            border: 2px solid #000;
+            border-radius: 25px;
+            width:180px;
+        }
+
+        .btn{
+            border: 2px solid #000;
+            border-radius: 25px;
+            margin:5px;
+            font-size: 18px;
+            background-color: #fff200;
+            cursor: pointer;
+        }
+
+        .log-txt, .log-clr{
+            cursor: pointer;
+            border: none;
+            margin: 8px;
+            font-size: 18px;
+            background-color: #fff200;
+        }
+
+        #resultContainer, #logsContainer {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: none;
+        }
+
+        #logsContainer {
+            list-style-type: disc;
+            margin-bottom: 10px;
+            margin-left: auto;
+        }
+
+        #languageSelect {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fff200;
+            color: #333;
+            width: 100px;
+        }
+
+        .language-selection-div{
+            border: 2px solid #000;
+            border-radius: 30px;
+            background-color: #fff200;
+            display: flex;
+            margin-top: 2px;
+            height: 42px;
+        }
+
+        #languageSelect option {
+            font-size: 16px;
+            border-right: 25px;
+            background-color: #e4dddd;
+            color: #333;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .header-lang-icon {
+            background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNi4yMjciIGhlaWdodD0iMTcuOSIgdmlld0JveD0iMCAwIDE2LjIyNyAxNy45Ij4KICA8cGF0aCBpZD0ibGFuZ3VhZ2UiIGQ9Ik0xMjguNTM0LDI2LjI0NmE3LjYzMiw3LjYzMiwwLDAsMC03LjQsOS41NjFoLS4wMjlhMS4xNTQsMS4xNTQsMCwwLDAtMS4xNTEsMS4xNDl2NC4xMThhMS4xNTQsMS4xNTQsMCwwLDAsMS4xNTEsMS4xNDloLjA0NXYxLjYxNWgwYS4zMDkuMzA5LDAsMCwwLC41MjcuMjE4bDEuODI2LTEuODMyaDQuMTFhMS4xNTcsMS4xNTcsMCwwLDAsMS4wNjQtLjcxMSw3LjYzLDcuNjMsMCwwLDAsNS40MzEtMTIuODU4aDBhLjI4NC4yODQsMCwwLDAtLjAyNS0uMDI3aDBjLS4wNDctLjA0OS0uMDk1LS4xLS4xNDItLjE0NWE3LjY1NCw3LjY1NCwwLDAsMC01LjQwNy0yLjIzNlptMCwuNjE3YTEuMDE4LDEuMDE4LDAsMCwxLC43NDIuNDQ4LDQuODQzLDQuODQzLDAsMCwxLC43NzQsMS40OTEsMTEuNzU2LDExLjc1NiwwLDAsMSwuNDQ4LDEuNzU5LDcuMDQxLDcuMDQxLDAsMCwxLTMuOTI4LDAsMTEuNzMzLDExLjczMywwLDAsMSwuNDQ4LTEuNzU5LDQuODQ4LDQuODQ4LDAsMCwxLC43NzQtMS40OTEsMS4wMTgsMS4wMTgsMCwwLDEsLjc0Mi0uNDQ4Wm0xLjI2Ny4xMTVhNy4wMzMsNy4wMzMsMCwwLDEsMy42MzUsMS44NzMsNy4wMjcsNy4wMjcsMCwwLDEtMi4zNDcsMS41MDgsMTIuMiwxMi4yLDAsMCwwLS40NTctMS43NjEsNS41MTgsNS41MTgsMCwwLDAtLjgzMi0xLjYyWm0tMi41MzUsMGE1LjUyMiw1LjUyMiwwLDAsMC0uODMxLDEuNjIsMTIuMjIzLDEyLjIyMywwLDAsMC0uNDU3LDEuNzYxLDcuMDMsNy4wMywwLDAsMS0yLjM0Ni0xLjUwOCw3LjAzMyw3LjAzMywwLDAsMSwzLjYzNS0xLjg3M1pNMTIzLjIwOCwyOS4zYTcuNjQ1LDcuNjQ1LDAsMCwwLDIuNjY3LDEuNjgsMTkuNzY2LDE5Ljc2NiwwLDAsMC0uMiwyLjU5aC00LjE2MWE3LjAxMyw3LjAxMywwLDAsMSwxLjctNC4yNzFabTEwLjY1MywwYTcuMDA4LDcuMDA4LDAsMCwxLDEuNyw0LjI3MUgxMzEuNGExOS43OSwxOS43OSwwLDAsMC0uMi0yLjU5LDcuNjQ4LDcuNjQ4LDAsMCwwLDIuNjY3LTEuNjhaTTEzMC42LDMxLjE3NGExOS4yMjUsMTkuMjI1LDAsMCwxLC4xODIsMi40aC00LjQ4OWExOS4yNzYsMTkuMjc2LDAsMCwxLC4xODItMi40LDcuNjQ3LDcuNjQ3LDAsMCwwLDQuMTI1LDBabS05LjA4NSwzLjAxNGg0LjE2Yy4wMTIuNTQ3LjAzNywxLjA5LjA4NiwxLjYxOWgtMy45ODNhNyw3LDAsMCwxLS4yNjQtMS42MTlabTQuNzc4LDBoNC40OWExOS4yNywxOS4yNywwLDAsMS0uMTgyLDIuNCw3LjY1Niw3LjY1NiwwLDAsMC0yLjAyNS0uMjgzaC0uMDEzYTEuMTU0LDEuMTU0LDAsMCwwLS45NDUtLjVoLTEuMjM1Yy0uMDUxLS41MjgtLjA4Mi0xLjA3MS0uMDg5LTEuNjE5Wm01LjEwNywwaDQuMTYxYTcuMDEzLDcuMDEzLDAsMCwxLTEuNyw0LjI3LDcuNjUxLDcuNjUxLDAsMCwwLTIuNjY3LTEuNjgsMTkuODM3LDE5LjgzNywwLDAsMCwuMi0yLjU5Wk0xMjEuMSwzNi40MjVoNi41MDhhLjUyNS41MjUsMCwwLDEsLjUzNC41MzJ2NC4xMThhLjMuMywwLDAsMCwwLC4wMzJoMGEuMzA5LjMwOSwwLDAsMC0uMDEyLjA1N3YuMDEyaDBxMCwuMDE0LDAsLjAyOHYuMDEyYS41MjMuNTIzLDAsMCwxLS41MTcuNEgxMjMuMzhhLjMwOC4zMDgsMCwwLDAtLjIxOS4wOTFMMTIxLjc3Myw0My4xVjQxLjkyMWEuMzA5LjMwOSwwLDAsMC0uMzA5LS4zMDloLS4zNTRhLjUyNS41MjUsMCwwLDEtLjUzNC0uNTMxVjM2Ljk2M2EuNTI1LjUyNSwwLDAsMSwuNTM0LS41MzFabTcuNjU5LjVhNy4wMTEsNy4wMTEsMCwwLDEsMS43MzQuMjc2LDExLjc2NiwxMS43NjYsMCwwLDEtLjQ0OCwxLjc1OSw0Ljg0Nyw0Ljg0NywwLDAsMS0uNzc0LDEuNDkxLDEuMzEyLDEuMzEyLDAsMCwxLS41MTEuNHYtMy45YzAtLjAxMiwwLS4wMjIsMC0uMDMzWm0yLjMyNi40NzZhNy4wMjgsNy4wMjgsMCwwLDEsMi4zNDcsMS41MDgsNy4wMzIsNy4wMzIsMCwwLDEtMy42MzUsMS44NzMsNS41MjQsNS41MjQsMCwwLDAsLjgzMS0xLjYyLDEyLjI1LDEyLjI1LDAsMCwwLC40NTctMS43NjJabS05LjA3Ni4wNDhoMGEuMzA5LjMwOSwwLDEsMCwwLC42MTdoNC40YS4zMDkuMzA5LDAsMSwwLDAtLjYxN1ptMCwxLjkyMmgwYS4zMDkuMzA5LDAsMSwwLDAsLjYxN2g0LjRhLjMwOS4zMDksMCwxLDAsMC0uNjE3WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTExOS45NTQgLTI2LjI0NikiIGZpbGw9IiMxMDEwMTAiLz4KPC9zdmc+Cg==);
+            width: 30px;
+            margin: 5px 10px 0 15px;
+            display: inline-block;
+            background-repeat: no-repeat;
+            background-position: left 2px;
+            background-size: 28px;
+        }
+
+        .button-container {
+            justify-content: flex-end;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+              visibility: hidden;
+              width: 120px;
+              background-color: #000;
+              color: #fff;
+              text-align: center;
+              border-radius: 6px;
+              padding: 5px;
+                font-size: 16px;
+              position: absolute;
+              z-index: 1;
+              top: 100%;
+              left: 50%;
+              transform: translateX(-50%);
+              opacity: 0;
+              transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+              content: "";
+              position: absolute;
+              bottom: 100%;
+              left: 50%;
+              margin-left: -5px;
+              border-width: 5px;
+              border-style: solid;
+              border-color: transparent transparent #000 transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+.title {
+    margin-bottom: 10px; /* Add space between title and content */
+}
+
+.content {
+    display: flex;
+    align-items: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.convert-btns {
+    height: 45px;
+    width: 120px;
+}
+ </style>
+</head>
+<body>
+
+    <div id="mainContainer">
+        <div id="rightContainer">
+            <div class="container">
+    <div class="title">
+        <h2>Voice to text</h2>
+    </div>
+    <div class="content">
+        <div class="tooltip">
+            <div class="language-selection-div">
+                <span class="header-lang-icon"></span>
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="en-US">English</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="bn-IN">Bengali</option>
+                    <option value="te-IN">Telugu</option>
+                    <option value="ta-IN">Tamil</option>
+                    <option value="gu-IN">Gujarati</option>
+                    <option value="ka-IN">Kannada</option>
+                    <option value="ml-IN">Malayalam</option>
+                    <option value="pa-IN">Punjabi</option>
+                    <option value="mr-IN">Marathi</option>
+                    <option value="ur-IN">Urdu</option>
+                    <option value="ja-JP">Japanese</option>
+                    <option value="zh-HK">Chinese (Hong Kong)</option>
+                    <option value="es-ES">Spanish (Spain)</option>
+                    <option value="fr-FR">French (France)</option>
+                    <option value="de-DE">German (Germany)</option>
+                </select>
+            </div>
+            <span class="tooltiptext">Select language</span>
+        </div>
+        <div class="button-container">
+            <button class="start-btn" onclick="startVoiceRecognition()">
+                <i class="fas fa-microphone"></i> &nbsp; Click to Start
+            </button>
+            <div class="btn tooltip">
+                <button class="log-txt" onclick="logTexts()">
+                    <i class="fas fa-list"></i>
+                </button>
+                <span class="tooltiptext">Show Logs</span>
+            </div>
+            <div class="btn tooltip">
+                <button class="log-clr" onclick="clearLogs()">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <span class="tooltiptext">Clear Logs</span>
+            </div>
+        </div>
+    </div>
+</div>
+<br/><br/>
+        <div class="container">
+            <div class="title">
+        <h2>Image to text</h2>
+    </div>
+    <div class="content">
+            <input type="file" id="imageInput" accept="image/*">
+            <button class="btn convert-btns" onclick="convertImageToText()">
+    <i class="fas fa-sync-alt"></i> Convert
+</button>
+
+    </div></div><br/><br/>
+
+        <div class="container">
+            <div class="title">
+        <h2>PDF to text</h2>
+    </div>
+    <div class="content">
+            <input type="file" id="pdfInput" accept=".pdf">
+            <button class="btn convert-btns" onclick="convertPDFToText()">
+                 <i class="fas fa-sync-alt"></i> Convert
+            </button>
+        </div>
+    </div></div>
+
+    <div id="logsContainer" class="container"></div>
+    <div id="resultContainer" class="container"></div>
+    <div class="overlay" id="overlay"></div>
+    </div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
+    <script>
+        // Your JavaScript code
+        const csrfToken = '{{ csrf_token }}';
+        let selectedLanguage = 'en-US';
+        let popup;
+        let recognition;
+
+        function showPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            popup = document.createElement('div');
+            popup.classList.add('popup');
+            popup.innerHTML = `
+                <lord-icon
+                    src="https://cdn.lordicon.com/bpmdxzpd.json"
+                    trigger="loop"
+                    state="loop-recording"
+                    colors="primary:#121331,secondary:#c69cf4,tertiary:#faf9d1,quaternary:#ebe6ef,quinary:#f24c00"
+                    style="width:250px;height:250px">
+                </lord-icon>`;
+            document.body.appendChild(popup);
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+
+            if (popup) {
+                popup.remove();
+            }
+        }
+
+        function startVoiceRecognition() {
+            showPopup();
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = selectedLanguage;
+            recognition.onresult = (event) => {
+                const audio_data = event.results[0][0].transcript;
+
+                fetch('/nexarc/voiceToText/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ audio_data, selectedLanguage }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    closePopup();
+                    showResult(data.data || data.error);
+                })
+                .catch(error => console.error('Fetch error:', error));
+            };
+
+            recognition.onerror = (event) => {
+                alert('Speech recognition error:', event.error);
+                closePopup();
+            };
+
+            recognition.start();
+        }
+
+        function changeLanguage(language) {
+            selectedLanguage = language;
+        }
+
+        function showResult(result) {
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.style.display = 'block';
+            resultContainer.textContent = result;
+        }
+
+        async function logTexts() {
+            const response = await fetch("/nexarc/fetch-text/");
+            const data = await response.json();
+
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.style.display = 'block';
+            logsContainer.innerHTML = '';
+
+            data.data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item.audio_data;
+                logsContainer.appendChild(listItem);
+            });
+        }
+
+        function clearLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            logsContainer.innerHTML = '';
+            resultContainer.innerHTML = '';
+            logsContainer.style.display = 'none';
+            resultContainer.style.display = 'none';
+        }
+
+        async function convertImageToText() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('image_data', file);
+
+            try {
+                const response = await fetch('/nexarc/image-to-text/', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                if (data.text) {
+                    showResult(data.text);
+                } else {
+                    console.error('Error converting image to text:', data.error);
+                }
+            } catch (error) {
+                console.error('Error converting image to text:', error);
+            }
+        }
+
+        async function convertPDFToText() {
+            const fileInput = document.getElementById('pdfInput');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('pdf_data', file);
+
+            try {
+                const response = await fetch('/nexarc/pdf-to-text/', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                if (data.text) {
+                    showResult(data.text);
+                } else {
+                    console.error('Error converting PDF to text:', data.error);
+                }
+            } catch (error) {
+                console.error('Error converting PDF to text:', error);
+            }
+        }
+    </script>
+</body>
+</html>

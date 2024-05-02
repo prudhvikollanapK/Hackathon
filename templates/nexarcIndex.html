@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexarc | Hackathon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            flex-basis: calc(33.33% - 20px);
+            padding: 20px;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none; /* Remove underline */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card__icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .card__title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card__text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .card:hover .card__title,
+        .card:hover .card__text {
+            color: #007bff; /* Change color on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="voice-to-text" target="_blank" class="card">
+            <i class="fas fa-microphone card__icon"></i>
+            <h2 class="card__title">Voice to Text</h2>
+            <p class="card__text">Convert spoken language into written text.</p>
+        </a>
+        <a href="image-to-text" target="_blank" class="card">
+            <i class="fas fa-image card__icon"></i>
+            <h2 class="card__title">Image to Text</h2>
+            <p class="card__text">Extract text from images and photos.</p>
+        </a>
+        <a href="pdf-to-text" target="_blank" class="card">
+            <i class="fas fa-file-pdf card__icon"></i>
+            <h2 class="card__title">PDF to Text</h2>
+            <p class="card__text">Convert PDF documents into editable text.</p>
+        </a>
+    </div>
+</body>
+</html>
